@@ -15,7 +15,8 @@ st.set_page_config(page_title="Mon Coach - Gymverse Style", layout="centered")
 st.title("💪 Mon Coach - Planificateur d'entraînement")
 
 st.markdown(
-    "Bienvenue dans votre assistant personnel d'entraînement !"
+    "Bienvenue dans votre assistant personnel d'entraînement !  
+"
     "Ajoutez vos exercices, configurez vos séances et exportez votre programme hebdomadaire."
 )
 
@@ -31,9 +32,13 @@ if filtered_exos:
     selected_exo = st.selectbox("🏋️ Choisis un exercice :", filtered_exos)
     exo_info = df_exos[df_exos["Exercice"] == selected_exo].iloc[0]
 
-    st.markdown(f"**Groupe musculaire :** {exo_info['Groupe']}  
-**Équipement :** {exo_info['Équipement']}  
-**Type :** {exo_info['Type']}")
+    st.markdown(
+        "**Groupe musculaire :** {}  
+**Équipement :** {}  
+**Type :** {}".format(
+            exo_info['Groupe'], exo_info['Équipement'], exo_info['Type']
+        )
+    )
 
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -51,12 +56,12 @@ if filtered_exos:
             "Répétitions": reps,
             "Charge": charge
         })
-        st.success(f"✅ {selected_exo} ajouté à la séance du {jour} !")
+        st.success("✅ {} ajouté à la séance du {}".format(selected_exo, jour))
 else:
     st.info("Aucun exercice trouvé.")
 
 # Affichage de la séance du jour
-st.subheader(f"📋 Séance du {jour}")
+st.subheader("📋 Séance du {}".format(jour))
 df_jour = pd.DataFrame(st.session_state["seances"][jour])
 if not df_jour.empty:
     st.table(df_jour)
