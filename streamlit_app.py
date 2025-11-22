@@ -14,10 +14,11 @@ if "seances" not in st.session_state:
 st.set_page_config(page_title="Mon Coach - Gymverse Style", layout="centered")
 st.title("💪 Mon Coach - Planificateur d'entraînement")
 
-st.markdown("""
-Bienvenue dans votre assistant personnel d'entraînement !  
-Ajoutez vos exercices, configurez vos séances et exportez votre programme hebdomadaire.
-""")
+st.markdown(
+    "Bienvenue dans votre assistant personnel d'entraînement !  
+"
+    "Ajoutez vos exercices, configurez vos séances et exportez votre programme hebdomadaire."
+)
 
 # Sélection du jour
 jour = st.selectbox("📅 Sélectionne un jour d'entraînement :", list(st.session_state["seances"].keys()))
@@ -31,7 +32,7 @@ if filtered_exos:
     selected_exo = st.selectbox("🏋️ Choisis un exercice :", filtered_exos)
     exo_info = df_exos[df_exos["Exercice"] == selected_exo].iloc[0]
 
-    st.markdown("**Groupe musculaire :** {exo_info['Groupe']}  
+    st.markdown(f"**Groupe musculaire :** {exo_info['Groupe']}  
 **Équipement :** {exo_info['Équipement']}  
 **Type :** {exo_info['Type']}")
 
