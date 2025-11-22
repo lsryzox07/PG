@@ -15,8 +15,7 @@ st.set_page_config(page_title="Mon Coach - Gymverse Style", layout="centered")
 st.title("💪 Mon Coach - Planificateur d'entraînement")
 
 st.markdown(
-    "Bienvenue dans votre assistant personnel d'entraînement !  
-"
+    "Bienvenue dans votre assistant personnel d'entraînement !"
     "Ajoutez vos exercices, configurez vos séances et exportez votre programme hebdomadaire."
 )
 
