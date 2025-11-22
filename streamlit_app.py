@@ -31,7 +31,7 @@ if filtered_exos:
     selected_exo = st.selectbox("🏋️ Choisis un exercice :", filtered_exos)
     exo_info = df_exos[df_exos["Exercice"] == selected_exo].iloc[0]
 
-    st.markdown(f"**Groupe musculaire :** {exo_info['Groupe']}  
+    st.markdown("**Groupe musculaire :** {exo_info['Groupe']}  
 **Équipement :** {exo_info['Équipement']}  
 **Type :** {exo_info['Type']}")
 
