@@ -1,85 +1,73 @@
 
 import streamlit as st
 import pandas as pd
-import os
 
-# Chargement des images locales
-image_dir = "images"
-exercise_data = {
-    "Développé couché": {"groupe": "Pectoraux", "image": "developpe_couche.jpg"},
-    "Tractions": {"groupe": "Dos", "image": "tractions.jpg"},
-    "Crunch": {"groupe": "Abdos", "image": "crunch.jpg"},
-    "Presse": {"groupe": "Jambes", "image": "presse.jpg"},
-    "Curl haltères": {"groupe": "Biceps", "image": "curl_haltere.jpg"},
-    "Élévations latérales": {"groupe": "Épaules", "image": "elevations_laterales.jpg"},
-    "Extensions mollets": {"groupe": "Mollets", "image": "extensions_mollets.jpg"},
-    "Crunch à la poulie": {"groupe": "Abdos", "image": "crunch_poulie.jpg"},
-    "Tirage horizontal": {"groupe": "Dos", "image": "tirage_horizontal.jpg"},
-    "Dips": {"groupe": "Triceps", "image": "dips.jpg"},
-    "Leg curl allongé": {"groupe": "Jambes", "image": "leg_curl_allonge.jpg"},
-    "Chaise romaine": {"groupe": "Abdos", "image": "chaise_romaine.jpg"},
-}
+# Chargement de la base d'exercices
+df_exos = pd.read_csv("base_exercices_musculation.csv")
+all_exercises = df_exos["Exercice"].tolist()
 
-all_exercises = list(exercise_data.keys())
-
+# Initialisation de l'état de session
 if "seances" not in st.session_state:
     st.session_state["seances"] = {j: [] for j in ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]}
 
-st.set_page_config(page_title="Planificateur de Musculation", layout="centered")
+# Configuration de la page
+st.set_page_config(page_title="Mon Coach - Gymverse Style", layout="centered")
+st.title("💪 Mon Coach - Planificateur d'entraînement")
 
-st.markdown("## 🏋️‍♀️ **Planificateur d'Entraînement Personnalisé**")
-st.markdown("Crée ta séance en choisissant tes exercices préférés. Ajoute des séries, des répétitions et visualise ton programme par jour.")
+st.markdown("""
+Bienvenue dans votre assistant personnel d'entraînement !  
+Ajoutez vos exercices, configurez vos séances et exportez votre programme hebdomadaire.
+""")
 
-# Choix du jour
-jour = st.selectbox("📅 Choisis un jour de la semaine :", list(st.session_state["seances"].keys()))
+# Sélection du jour
+jour = st.selectbox("📅 Sélectionne un jour d'entraînement :", list(st.session_state["seances"].keys()))
 
-# Recherche exercice
-search = st.text_input("🔍 Recherche un exercice").lower()
-filtered = [e for e in all_exercises if search in e.lower()] if search else all_exercises
+# Recherche d'exercices
+search = st.text_input("🔍 Rechercher un exercice").lower()
+filtered_exos = [exo for exo in all_exercises if search in exo.lower()] if search else all_exercises
 
-if filtered:
-    selected_exo = st.selectbox("🏋️ Choisis un exercice :", filtered)
-    exo_info = exercise_data[selected_exo]
-    image_path = os.path.join(image_dir, exo_info["image"])
-    if os.path.exists(image_path):
-        st.image(image_path, caption=f"{selected_exo} – {exo_info['groupe']}", use_column_width=True)
-    else:
-        st.warning("Image manquante.")
+# Sélection d'un exercice
+if filtered_exos:
+    selected_exo = st.selectbox("🏋️ Choisis un exercice :", filtered_exos)
+    exo_info = df_exos[df_exos["Exercice"] == selected_exo].iloc[0]
 
-    st.markdown("### 📊 Paramètres de l'exercice")
-    cols = st.columns(3)
-    with cols[0]:
-        series = st.number_input("Séries", 1, 10, 3)
-    with cols[1]:
-        reps = st.number_input("Répétitions", 1, 30, 12)
-    with cols[2]:
-        charge = st.text_input("Charge", "Poids du corps")
+    st.markdown(f"**Groupe musculaire :** {exo_info['Groupe']}  
+**Équipement :** {exo_info['Équipement']}  
+**Type :** {exo_info['Type']}")
 
-    if st.button("➕ Ajouter cet exercice à la séance"):
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        series = st.number_input("Séries", min_value=1, max_value=10, value=3)
+    with col2:
+        reps = st.number_input("Répétitions", min_value=1, max_value=30, value=10)
+    with col3:
+        charge = st.text_input("Charge (kg ou poids du corps)", "Poids du corps")
+
+    if st.button("➕ Ajouter à la séance"):
         st.session_state["seances"][jour].append({
-            "Groupe": exo_info["groupe"],
+            "Groupe": exo_info["Groupe"],
             "Exercice": selected_exo,
             "Séries": series,
             "Répétitions": reps,
             "Charge": charge
         })
-        st.success(f"✅ {selected_exo} ajouté au programme du {jour} !")
+        st.success(f"✅ {selected_exo} ajouté à la séance du {jour} !")
 else:
-    st.info("Aucun exercice trouvé avec ce mot-clé.")
+    st.info("Aucun exercice trouvé.")
 
 # Affichage de la séance du jour
-st.markdown(f"## 📋 Séance du {jour}")
-df = pd.DataFrame(st.session_state["seances"][jour])
-if not df.empty:
-    st.dataframe(df)
+st.subheader(f"📋 Séance du {jour}")
+df_jour = pd.DataFrame(st.session_state["seances"][jour])
+if not df_jour.empty:
+    st.table(df_jour)
 else:
-    st.warning("Aucun exercice ajouté pour ce jour.")
+    st.warning("Aucun exercice pour ce jour.")
 
-# Export Excel
-if st.button("💾 Exporter le programme complet (.xlsx)"):
-    full_data = []
-    for j, exos in st.session_state["seances"].items():
-        for e in exos:
-            full_data.append({"Jour": j, **e})
-    pd.DataFrame(full_data).to_excel("programme_muscu.xlsx", index=False)
-    st.success("✅ Exportation réussie : programme_muscu.xlsx")
+# Export global
+if st.button("💾 Exporter le programme hebdomadaire (.xlsx)"):
+    all_data = []
+    for j, liste in st.session_state["seances"].items():
+        for e in liste:
+            all_data.append({"Jour": j, **e})
+    pd.DataFrame(all_data).to_excel("programme_hebdo.xlsx", index=False)
+    st.success("📁 programme_hebdo.xlsx généré avec succès.")
